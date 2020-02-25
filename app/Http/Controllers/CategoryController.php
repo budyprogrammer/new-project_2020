@@ -14,7 +14,7 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        $categories = Category::paginate(12);
+        $categories = Category::all();
         return view('admin.categories.index',compact('categories'));
     }
 
@@ -45,7 +45,7 @@ class CategoryController extends Controller
 
         $categories = Category::create($request->only('title','description'));
       
-            return back()->with('message','Category Added Successfully!');
+            return redirect('admin/category')->with('message','Category Added Successfully!');
 
      
     }
@@ -93,7 +93,7 @@ class CategoryController extends Controller
 
         $categories->update();
         // $categories->update()->$request->all();      
-            return redirect('admin/category')->with('message','Category Added Successfully!');
+            return redirect('admin/category')->with('message','Category updated Successfully!');
     }
 
     /**

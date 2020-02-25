@@ -1,6 +1,6 @@
 @extends('admin.dashboard')
 @section('content')
-<div class="container" >	
+	
   <div class="row" style="">
     <div class="col-lg-12">
       
@@ -61,7 +61,7 @@
   </form>
 </div>
 </div>
-</div>
+
  
 @endsection
 @section('script')

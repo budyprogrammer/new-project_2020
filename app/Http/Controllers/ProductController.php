@@ -3,15 +3,19 @@
 namespace App\Http\Controllers;
 
 
+use App\Cart;
 use App\Category;
+use App\Customer;
 use App\Http\Requests\ProductStore;
+use App\Mail\ContactFormMail;
+use App\Order;
 use App\Product;
-use Carbon\Traits\make;
-use Faker\Provider\Image;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\validate;
+use Session;
 
 class ProductController extends Controller
 {
@@ -54,7 +58,7 @@ class ProductController extends Controller
             'admin_price' => 'required|numeric',
             'user_price' => 'required|numeric',
             'category_id' => 'required',
-            'product_image' => 'required',
+            'product_image' => 'required|mimes:jpeg,png',
         ]);
    
          $image = $request->file('product_image');
@@ -71,7 +75,7 @@ class ProductController extends Controller
         // dd($product);   
         if ($product) {
              $product->categories()->attach($request->category_id);
-            return back()->with('message','product successfuly added');
+            return redirect('admin/product')->with('message','product successfuly added');
         } else {
             return back()->with('message','error product no added');
         }
@@ -79,21 +83,94 @@ class ProductController extends Controller
     }   
 
     /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
+         * Display the specified resource.
+         *
+         * @param  int  $id
+         * @return \Illuminate\Http\Responses
+         */
+    public function show()
     {
-        //
+      
+       $products = Product::all();
+       $categories = Category::all();
+       
+       return view('products.all', compact('categories','products'));
     }
+
+    public function sing_page($id)
+    {   
+        
+        $products = Product::find($id);
+        // dd($products);
+        return view('products.singlepage',compact('products'));
+    }    
+
+
+    public function showProduct()
+    {
+        // return 'a';
+      if(request()->category){
+            $products = Product::with('categories')->whereHas('categories', function($query){
+                $query->where('title',request()->category);
+            })->get();
+
+            $categories = Category::all();
+        }else{
+
+            $categories = Category::all();
+            $products = Product::all();
+
+        }
+        return view('products.products',compact('products','categories'));
+        
+        
+    }  
+   
+    public function AddToCart(Product $product, Request $request)
+   {
+        $oldCart = Session::has('cart') ? Session::get('cart') : null;
+        $qty = $request->qty ? $request->qty : 1;
+        $cart = new Cart($oldCart);
+        $cart->addProduct($product, $qty);
+        Session::put('cart', $cart);
+        return back()->with('message', "Product $product->title has been successfully added to Cart");
+   }
+
+    public function removeProduct(Product $product){
+          $oldCart = Session::has('cart') ? Session::get('cart') : null;
+          $cart = new Cart($oldCart);
+          $cart->removeProduct($product);
+          Session::put('cart', $cart);
+          return back()->with('message', "Product $product->title has been successfully removed From the Cart");
+       }
+
+
+    public function updateProduct(Product $product, Request $request){
+  
+      $oldCart = Session::has('cart') ? Session::get('cart') : null;
+      $cart = new Cart($oldCart);
+      $cart->updateProduct($product, $request->qty );
+      Session::put('cart', $cart);
+      return back()->with('message', "Product $product->title has been successfully Updated in the Cart");
+    }
+
+
+    public function cart(){
+
+      if(!Session::has('cart')){
+        return view('products.cart');
+      }
+      $cart = Session::get('cart');
+      return view('products.cart', compact('cart'));
+    }
+
+
 
     /**
      * Show the form for editing the specified resource.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+ * @return \Illuminate\Http\Response
      */
     public function edit($id)
     {
@@ -111,11 +188,19 @@ class ProductController extends Controller
      */
     public function update(Request $request, $id)
     {
+         $request->validate([
+            'title'=>'required',
+            'description'=>'required',
+            'admin_price' => 'required|numeric',
+            'user_price' => 'required|numeric',
+            'category_id' => 'required',
+            'product_image' => 'required|mimes:jpeg,png',
+        ]);
         $product = Product::find($id);
         $image = $request->file('product_image');
         $filename = $image->getClientOriginalName();
         $image->move(public_path('images/'),$filename);
-       $product->product_image = $filename;
+        $product->product_image = $filename;
         $product->title = $request->title;
         $product->description =$request->description;
         $product->admin_price = $request->admin_price;
@@ -126,7 +211,7 @@ class ProductController extends Controller
              
         if($product->update()){
              $product->categories()->attach($request->category_id);
-                return back()->with('message', 'product updated successfuly');
+                return redirect('admin/product')->with('message', 'product updated successfuly');
 
              }else
                 return back()->with('message','error is throw product updated');
@@ -135,9 +220,9 @@ class ProductController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+         * @param  int  $id
+         * @return \Illuminate\Http\Response
+         */
     public function destroy($id)
     {
        $product = Product::find($id);
@@ -149,4 +234,62 @@ class ProductController extends Controller
             return back()->with('message','Error deleting Record');
         }
     }
+
+    public function viewOrders()
+    {
+        $orders = Order::with('customers','products','users')->get();
+        
+       return view('admin.orders.orders', compact('orders'));
+    }
+
+    public function orderDelete($id)
+    {
+       $orders = Order::find($id);
+       $orders->delete();
+            return back()->with('message','orders deleted Successfully!');
+                
+      
+    }
+    public function order_view($id)
+    {
+        $orders = Order::find($id);
+      
+        return view('admin.orders.orderview',compact('orders'));
+    }
+
+    public function contact()
+    {
+        return view('products.contact');   
+    }
+
+    public function SendContact(Request $request)
+    {
+        return "error";
+        // dd($request->all());
+        $data = $request->validate([
+            'nmae'   => 'required',
+            'email'  => 'required|email',
+            'number' => 'required|numeric',
+            'message' => 'required'
+        ]);
+
+            $data = $request([
+                'name' => $request->name,
+                'email' => $request->email,
+                'number' => $request->number,
+                'message' => $request->message
+            ]);
+            // $data =$request->message;
+
+            // return $message;
+            // dd($datas);
+            if ($data) {
+                # code...
+            Mail::send(new  ContactFormMail($message));
+          return view('products.contact')->with('success','excel data imported successfully.');
+            }else{
+                return "error";
+            }
+
+        }
 }

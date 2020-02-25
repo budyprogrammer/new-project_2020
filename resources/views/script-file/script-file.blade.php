@@ -14,3 +14,6 @@
   <!-- Demo scripts for this page-->
   <script src="{{URL::asset('js/demo/datatables-demo.js')}}"></script>
   <script src="{{URL::asset('js/demo/chart-area-demo.js')}}"></script>
+ 
+
+ 

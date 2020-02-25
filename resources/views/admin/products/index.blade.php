@@ -1,17 +1,19 @@
 @extends('admin.dashboard')
 @section('content')
-<div class="container">
+<div class="row">
+<div class="col-sm">
 <h2>Product</h2>
 <a href="{{route('admin.product.create')}}" class="btn btn-primary float-right">add product</a>
 <div class="table table-responsive">
-	   <div class="col-sm-12">
+	   <div class="col-sm">
 		 @if (session()->has('message'))
 		    <div class="alert alert-success">
 		        {{session('message')}}
 		    </div>
    		 @endif
   </div>
-	<table class="table table-striped table-sm ">
+  
+	<table class="table table-striped">
 		<thead>
 			<tr>
 				<th>#</th>
@@ -19,10 +21,10 @@
 				<th>Description</th>
 				<th>Categories</th>
 				<th>Admin price</th>
-				<th>user price</th>
+				<th>User Price</th>
 				<th></th>
-				<th>created at</th>
-				<th>action</th>
+				<th>Ceated at</th>
+				<th>Action</th>
 			</tr>
 		</thead>
 			<tbody>
@@ -71,15 +73,23 @@
 
 				</tr>
 				@endforeach
+				@else
+				<tr>
+					<td colspan="5" class="text-center"> no category found
+					</td>
+				</tr>
 				@endif
 			</tbody>
 	
 	</table>
-</div>
-<div class="row">
-	<div class="col-lg-12">
-		
+
+
+	<div class="row">
+		<div class="col-lg-12">
+			
+		</div>
 	</div>
+</div>
 </div>
 </div>
 @endsection

@@ -115,7 +115,8 @@
       <!-- /.container-fluid -->
 
       <!-- Sticky Footer -->
-    
     </div>
-
+  
+    </div>
+ 
 @endsection 

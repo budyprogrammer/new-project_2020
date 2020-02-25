@@ -1,13 +1,13 @@
 @extends('admin.dashboard')
 @section('content')
-<div class="container">
-	<div class="row">
-		<div class="col-lg-12">
+
+<div class="row">
+<div class="col-sm" >
 			
 <h2>all categories</h2>
 <a href="{{route('admin.category.create')}}" class="btn btn-primary float-right">add category</a>
-<div class="table table-responsive">
-	   <div class="col-sm-12">
+<div  class="table table-responsive">
+	   <div class="col-sm">
 		  	@if (session()->has('message'))
 		    <div class="alert alert-success">
 		       {{ session('message')}}
@@ -15,7 +15,7 @@
    		 @endif
   </div>
   <div class="table-responsive">
-	<table class="table table-striped table-sm">
+	<table class="table table-striped table-sm" >
 		<thead>
 			<tr>
 				<th>id</th>
@@ -56,16 +56,11 @@
 			</tbody>
 		</table>
 	</div>
-		<div class="row">
-	<div class="col-lg-12">
-		{{$categories->links()}}
-	</div>
-</div>
-
+		
      </div>
 	</div>
   </div>	
-</div>
+
 
 
 

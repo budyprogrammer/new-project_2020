@@ -60,6 +60,9 @@
                            document.getElementById('logout-form').submit();">
               {{ __('Logout') }}
           </a>
+          <a class="dropdown-item" data-toggle="modal" data-target="#exampleModal" href="{{ route('logout') }}"
+             >profile</a>
+
           <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
               @csrf
           </form>
@@ -68,7 +71,41 @@
     </ul>
 
   </nav>
-
+   
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Password Change</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+      <form>
+      <div class="form-group">
+        <label for="exampleInputEmail1">Old Password</label>
+        <input type="password" class="form-control" id="oldpassword">
+      </div>
+      <div class="form-group">
+        <label for="exampleInputPassword1">New Password</label>
+        <input type="password" class="form-control">
+      </div>
+      <div class="exampleInputPassword1">
+        <label for="exampleInputPassword1">Confirm Password</label>
+        <input type="password" class="form-control" id="exampleInputPassword1">
+        
+      </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </form>
+      </div>
+      
+    </div>
+  </div>
+</div>
   <div id="wrapper">
     
     <!-- Sidebar -->
